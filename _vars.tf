@@ -97,7 +97,10 @@ variable "auth-token-endpoint" {
   type        = string
   description = "The OAUTH Token Endpoint URL"
 }
-
+variable "chatservice_api_key" {
+  type    = string
+  description = "Chat Service API KEY VALUE "
+  
 # Local variables
 
 locals {

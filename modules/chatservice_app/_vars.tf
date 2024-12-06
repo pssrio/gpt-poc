@@ -18,4 +18,7 @@ variable "api_mgmt_url" {
   type    = string
   description = "API management URL"
 }
+variable "chatservice_api_key" {
+  type    = string
+  description = "Chat Service API KEY VALUE "
 

@@ -64,7 +64,7 @@ resource "azurerm_container_app" "chatservice" {
         name  = "SERVICE_NAME"
       }
       env {
-        value = "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"
+        value = var.chatservice_api_key
         name  = "API_KEY"
       }
 
