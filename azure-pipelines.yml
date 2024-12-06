@@ -1,0 +1,51 @@
+# Azure DevOps pipeline for Azure deployment
+
+steps:
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@1
+  displayName: 'Install Terraform latest'
+
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform : Init'
+  inputs:
+    backendServiceArm: 'zgpt-ado-azrm'
+    backendAzureRmResourceGroupName: 'nimbly-tfstate-rg'
+    backendAzureRmStorageAccountName: nimblytfstate
+    backendAzureRmContainerName: 'zgpt-tf-app'
+    backendAzureRmKey: terraform.tfstate
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform : Validate'
+  inputs:
+    command: validate
+
+
+- task: AzureKeyVault@2
+  displayName: 'Download secrets from Azure Key Vault'
+  inputs:
+    ConnectedServiceName: 'zgpt-ado-azrm'
+    KeyVaultName: 'zgpt-secrets'
+    runAsPreJob: false
+
+
+- task: ms-devlabs.custom-terraform-tasks.custom-terraform-release-task.TerraformTaskV4@4
+  displayName: 'Terraform : Plan'
+  inputs:
+    command: plan
+    environmentServiceNameAzureRM: 'zgpt-ado-azrm'
+    backendServiceArm: 'zgpt-ado-azrm'
+    backendAzureRmResourceGroupName: 'nimbly-tfstate-rg'
+    backendAzureRmStorageAccountName: nimblytfstate
+    backendAzureRmContainerName: 'zgpt-tf-app'
+    backendAzureRmKey: terraform.tfstate
+    commandOptions: >
+      -input=false
+      -var "ado-azudevops-pat=$(ado-azudevops-pat)"
+      -var "ado-org-service-url=$(ado-org-service-url)"
+      -var "ado-github-pat=$(ado-github-pat)"
+      -var "authorization-endpoint=$(authorization-endpoint)"
+      -var "auth-client-id=$(auth-client-id)"
+      -var "auth-client-secret=$(auth-client-secret)"
+      -var "auth-client-registration-endpoint=$(auth-client-registration-endpoint)"
+      -var "auth-token-endpoint=$(auth-token-endpoint)"
+      -var "authorization-server-name=$(authorization-server-name)"
